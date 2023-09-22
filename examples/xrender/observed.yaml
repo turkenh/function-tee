@@ -1,0 +1,39 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  annotations:
+    crossplane.io/composition-resource-name: my-bucket
+  generateName: test-xrender-
+  name: test-xrender-6b7b7b7b7b
+  labels:
+    crossplane.io/composite: test-xrender
+  ownerReferences:
+    - apiVersion: nopexample.org/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: XBucket
+      name: test-xrender
+      uid: ""
+  managedFields:
+    - apiVersion: nop.crossplane.io/v1alpha1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            f:crossplane.io/composition-resource-name: {}
+          f:generateName: {}
+          f:labels:
+            f:crossplane.io/claim-name: {}
+            f:crossplane.io/claim-namespace: {}
+            f:crossplane.io/composite: {}
+          f:ownerReferences:
+            k:{"uid":"efcf4c6f-f53f-4e7d-b032-5da63bd7ee01"}: {}
+        f:spec:
+          f:forProvider:
+            f:conditionAfter: {}
+      manager: fn.apiextensions.crossplane.io
+      operation: Apply
+      time: "2023-09-22T07:06:41Z"
+spec:
+  forProvider:
+    region: us-east-2

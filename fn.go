@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/crossplane/crossplane-runtime/pkg/errors"
+	"github.com/crossplane/crossplane-runtime/pkg/fieldpath"
 	"github.com/crossplane/crossplane-runtime/pkg/logging"
 	"github.com/crossplane/crossplane-runtime/pkg/resource/unstructured/composed"
 	fnv1beta1 "github.com/crossplane/function-sdk-go/proto/v1beta1"
@@ -16,6 +17,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/json"
 	"sigs.k8s.io/yaml"
 	"strings"
+)
+
+const (
+	composedNameProviderConfig  = "function-tee-provider-kubernetes-config"
+	composedNameOutputConfigMap = "function-tee-output-configmap"
 )
 
 // Function returns whatever response you ask it to.
@@ -95,6 +101,28 @@ func extractRequestAsYaml(req *fnv1beta1.RunFunctionRequest) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "cannot unmarshal json to map[string]interface{}")
 	}
+
+	// Do some cleanup of the request
+	paved := fieldpath.Pave(mReq)
+	var ors map[string]map[string]interface{}
+	if err = paved.GetValueInto("observed.resources", &ors); err != nil && !fieldpath.IsNotFound(err) {
+		return "", errors.Wrap(err, "cannot get observed resources from request")
+	}
+	for k := range ors {
+		if k == composedNameOutputConfigMap || k == composedNameProviderConfig {
+			// We don't want to pollute the observed resources with our
+			//  ProviderConfig and ConfigMap
+			delete(ors, k)
+		}
+		// TODO: Make this optional via input
+		if err = fieldpath.Pave(ors[k]).DeleteField("resource.metadata.managedFields"); err != nil && !fieldpath.IsNotFound(err) {
+			return "", errors.Wrap(err, "cannot delete managedFields from observed resources")
+		}
+	}
+	if err = paved.SetValue("observed.resources", ors); err != nil {
+		return "", errors.Wrap(err, "cannot set observed resources in request")
+	}
+
 	yReq, err := yaml.Marshal(mReq)
 	if err != nil {
 		return "", errors.Wrap(err, "cannot marshal map to yaml")
@@ -105,7 +133,7 @@ func extractRequestAsYaml(req *fnv1beta1.RunFunctionRequest) (string, error) {
 
 func addDesiredTo(existing map[resource.Name]*resource.DesiredComposed, name, namespace, requestYaml string) {
 
-	existing["function-tee-provider-kubernetes-config"] = &resource.DesiredComposed{
+	existing[composedNameProviderConfig] = &resource.DesiredComposed{
 		Resource: &composed.Unstructured{
 			Unstructured: unstructured.Unstructured{
 				Object: map[string]interface{}{
@@ -130,7 +158,7 @@ func addDesiredTo(existing map[resource.Name]*resource.DesiredComposed, name, na
 		Ready: resource.ReadyTrue,
 	}
 
-	existing["function-tee-output-configmap"] = &resource.DesiredComposed{
+	existing[composedNameOutputConfigMap] = &resource.DesiredComposed{
 		Resource: &composed.Unstructured{
 			Unstructured: unstructured.Unstructured{
 				Object: map[string]interface{}{
