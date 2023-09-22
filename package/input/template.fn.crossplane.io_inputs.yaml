@@ -26,7 +26,7 @@ spec:
               of an object. Servers should convert recognized schemas to the latest
               internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
             type: string
-          example:
+          configMapNamespace:
             description: Example is an example field. Replace it with whatever input
               you need. :)
             type: string
@@ -37,8 +37,6 @@ spec:
             type: string
           metadata:
             type: object
-        required:
-        - example
         type: object
     served: true
     storage: true

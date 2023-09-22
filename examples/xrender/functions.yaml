@@ -1,0 +1,16 @@
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: Function
+metadata:
+  name: function-tee
+  annotations:
+    xrender.crossplane.io/runtime: Development
+spec:
+  package: xpkg.upbound.io/turkenh/function-tee:v0.0.1
+---
+apiVersion: pkg.crossplane.io/v1beta1
+kind: Function
+metadata:
+  name: function-dummy
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-dummy:v0.2.1
