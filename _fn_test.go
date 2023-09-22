@@ -39,8 +39,7 @@ func TestRunFunction(t *testing.T) {
 					Meta: &fnv1beta1.RequestMeta{Tag: "hello"},
 					Input: resource.MustStructJSON(`{
 						"apiVersion": "dummy.fn.crossplane.io",
-						"kind": "Input",
-						"example": "Hello, world!"
+						"kind": "Input"
 					}`),
 				},
 			},
@@ -50,7 +49,7 @@ func TestRunFunction(t *testing.T) {
 					Results: []*fnv1beta1.Result{
 						{
 							Severity: fnv1beta1.Severity_SEVERITY_NORMAL,
-							Message:  "I was run with input \"Hello, world!\"",
+							Message:  "Successful run",
 						},
 					},
 				},

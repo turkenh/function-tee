@@ -78,7 +78,7 @@ func (f *Function) RunFunction(_ context.Context, req *fnv1beta1.RunFunctionRequ
 		return rsp, nil
 	}
 
-	response.Normalf(rsp, "I was run with input %q", in)
+	response.Normal(rsp, "Successful run")
 
 	return rsp, nil
 }
