@@ -122,6 +122,10 @@ func extractRequestAsYaml(req *fnv1beta1.RunFunctionRequest) (string, error) {
 	if err = paved.SetValue("observed.resources", ors); err != nil {
 		return "", errors.Wrap(err, "cannot set observed resources in request")
 	}
+	// Also clean up managed fields from the composite resource
+	if err = paved.DeleteField("observed.composite.resource.metadata.managedFields"); err != nil && !fieldpath.IsNotFound(err) {
+		return "", errors.Wrap(err, "cannot delete managedFields from observed composite resource")
+	}
 
 	yReq, err := yaml.Marshal(mReq)
 	if err != nil {
